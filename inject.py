@@ -48,4 +48,8 @@ def work_packet(packet):
 value = get_args()
 queue = netq.NetfilterQueue()
 queue.bind(0, work_packet)
-queue.run()
+try:
+    queue.run()
+except KeyboardInterrupt:
+    print("[-] Detected CTRL + C Quitting...")
+    print("[+] Code Injected Successfully in all requested pages.")
