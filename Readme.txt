@@ -4,6 +4,7 @@ scapy
 re
 optparse
 argpars(for python 3)
+sys
 
 #################################################
 **NOTE [HTTP sites]
